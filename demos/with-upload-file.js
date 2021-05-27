@@ -1,21 +1,23 @@
-const multer = require('multer')
 const { router, server } = require('0http')({
   server: require('../src/server')()
 })
 
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: __dirname,
-    filename: (req, file, cb) => cb(null, file.originalname)
-  })
-})
+const Busboy = require('busboy')
 
-router.post('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    res.statusCode = 400
-    res.end('Failed to upload')
-  }
-  res.end('Success upload ' + req.file.originalname)
+router.post('/upload', (req, res) => {
+  const busboy = new Busboy({ headers: req.headers })
+  busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+    console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype)
+    file.on('data', function (data) {
+      // console.log(data.toString()) // this should show the data we are trying to send via curl
+      console.log('File [' + fieldname + '] got ' + data.length + ' bytes')
+    })
+    file.on('end', function () {
+      console.log('File [' + fieldname + '] Finished')
+    })
+    
+  })
+  req.pipe(busboy)
 })
 
 server.listen(3000, () => { })
