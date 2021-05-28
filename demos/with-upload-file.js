@@ -15,9 +15,8 @@ router.post('/upload', (req, res) => {
     file.on('end', function () {
       console.log('File [' + fieldname + '] Finished')
     })
-    
   })
   req.pipe(busboy)
 })
 
-server.listen(3000, () => { })
+server.listen(8000, () => { })
